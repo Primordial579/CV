@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>File Converter</title>
+  <style>
+    body { font-family: Arial; padding: 2rem; background: #f2f2f2; }
+    form { background: #fff; padding: 2rem; border-radius: 10px; width: 400px; margin: auto; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    input, select, button { display: block; margin-top: 1rem; width: 100%; padding: 0.5rem; }
+  </style>
+</head>
+<body>
+  <form id="converterForm">
+    <h2>File Converter</h2>
+    <label>Select file:</label>
+    <input type="file" name="file" id="file" required>
+    <label>Choose conversion:</label>
+    <select name="conversion" id="conversion" required>
+      <option value="heic-jpg">HEIC → JPG</option>
+      <option value="img-pdf">JPG/PNG → PDF</option>
+      <option value="pdf-img">PDF → JPG</option>
+      <option value="pdf-docx">PDF → Word</option>
+      <option value="docx-pdf">Word → PDF</option>
+    </select>
+    <button type="submit">Convert</button>
+  </form>
+
+  <script>
+    document.getElementById('converterForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = new FormData();
+      form.append('file', document.getElementById('file').files[0]);
+      form.append('conversion', document.getElementById('conversion').value);
+
+      // 👉 Replace this URL with your deployed backend (e.g. Render)
+      const BACKEND_URL = 'https://your-backend.onrender.com/convert';
+
+      const res = await fetch(BACKEND_URL, {
+        method: 'POST',
+        body: form,
+      });
+
+      if (!res.ok) {
+        alert('Conversion failed!');
+        return;
+      }
+
+      const blob = await res.blob();
+      const filename = res.headers.get('Content-Disposition')?.split('filename=')[1]?.replaceAll('"', '') || 'converted_file';
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    });
+  </script>
+</body>
+</html>
